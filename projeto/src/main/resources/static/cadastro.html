@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="./cadastro.css">
+</head>
+<body>
+    <div class="box">
+        <h1>Cadastro</h1>
+        <form id="formulario" method="POST">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" class="nome" name="nome" placeholder="Nome" autocomplete="given-name">
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="username" name="username" placeholder="Username" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" class="email" name="email" placeholder="Email" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" class="senha" name="senha" placeholder="Senha" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="tel">Telefone:</label>
+                <input type="text" class="tel" name="tel" placeholder="Telefone" autocomplete="tel">
+            </div>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+    <script src="cadastro.js" defer></script>
+</body>
+</html>
