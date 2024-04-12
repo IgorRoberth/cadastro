@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"br.com.criandoapi.controller", "br.com.criandoapi.projeto.DAO","br.com.criandoapi.projeto.model","securityconfig"})
+@ComponentScan(basePackages = {"br.com.criandoapi.controller","br.com.criandoapi.projeto.DAO","br.com.criandoapi.projeto.model","securityconfig"})
 public class ProjetoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ProjetoApplication.class, args);
