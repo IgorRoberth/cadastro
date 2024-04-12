@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (res.status === 201) {
                 alert("Usuário cadastrado com sucesso!");
                 limpar();
-                window.location.href = '/static/Login/login.html';
+                window.location.href = '/login.html';
             } else {
                 alert("Ocorreu um erro ao cadastrar o usuário.");
             }
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     formulario.addEventListener('submit', function (event) {
-        event.preventDefault();
+        event.preventDefault(); 
         if (!validarCampos()) {
             alert("Por favor, preencha todos os campos.");
             return;
