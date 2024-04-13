@@ -1,36 +1,33 @@
 package br.com.criandoapi.controller;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import br.com.criandoapi.projeto.DAO.IUsuario;
 import br.com.criandoapi.projeto.model.Usuario;
 import br.com.criandoapi.projeto.model.UsuarioService;
+import jakarta.transaction.Transactional;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
@@ -39,6 +36,13 @@ public class UsuarioController {
 
 	@Autowired
 	private UsuarioService usuarioService;
+	
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body("Este endpoint suporta apenas solicitações POST.");
+    }
 
 	@GetMapping
 	public ResponseEntity<Iterable<Usuario>> listaUsuarios() {
@@ -67,6 +71,7 @@ public class UsuarioController {
 	}
 
 	@PutMapping("/{id}")
+	@Transactional
 	public ResponseEntity<Usuario> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
 		Optional<Usuario> usuarioOptional = dao.findById(id);
 		if (usuarioOptional.isPresent()) {
@@ -92,34 +97,37 @@ public class UsuarioController {
 		Optional<Usuario> usuarioOptional = dao.findById(id);
 		if (usuarioOptional.isPresent()) {
 			dao.deleteById(id);
-			return ResponseEntity.ok().build();
+			return ResponseEntity.status(204).build();
 		} else {
 			return ResponseEntity.notFound().build();
 		}
 	}
+	
+	@PostMapping("/login")
+	public ResponseEntity<?> checkUsuario(@RequestBody Map<String, String> loginRequest) {
+	    String username = loginRequest.get("username");
+	    String senha = loginRequest.get("senha");
+	    
+	    if (username == null || senha == null) {
+	        return ResponseEntity.badRequest()
+	                .body(Collections.singletonMap("erro", "Nome de usuário e senha são obrigatórios"));
+	    }
 
-	@GetMapping("/check-usuario")
-	public ResponseEntity<?> checkUsuario(@RequestParam(required = false) String username,
-			@RequestParam(required = false) String senha) {
-		if (username == null || senha == null) {
-			return ResponseEntity.badRequest()
-					.body(Collections.singletonMap("erro", "Nome de usuário e senha são obrigatórios"));
-		}
+	    Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
 
-		Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
-
-		if (usuarioOptional.isPresent()) {
-			Usuario usuario = usuarioOptional.get();
-			if (usuario.getSenha().equals(senha)) {
-				return ResponseEntity.status(HttpStatusCode.valueOf(200))
-						.body(Collections.singletonMap("Sucesso", "Login realizado com sucesso"));
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-						.body(Collections.singletonMap("erro", "Senha incorreta"));
-			}
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Collections.singletonMap("erro", "Usuário não cadastrado"));
-		}
+	    if (usuarioOptional.isPresent()) {
+	        Usuario usuario = usuarioOptional.get();
+	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	        if (encoder.matches(senha, usuario.getSenha())) {
+	            return ResponseEntity.ok()
+	                    .body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
+	        } else {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                    .body(Collections.singletonMap("erro", "Senha incorreta"));
+	        }
+	    } else {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                .body(Collections.singletonMap("erro", "Usuário não cadastrado"));
+	    }
 	}
 }

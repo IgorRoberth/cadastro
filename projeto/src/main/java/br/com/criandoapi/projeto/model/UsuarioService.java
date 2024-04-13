@@ -13,10 +13,6 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
-	public Usuario cadastrarUsuario(Usuario usuario) {
-		return usuarioRepository.save(usuario);
-	}
-
 	public Optional<Usuario> encontrarPorUsername(String username) {
 		return usuarioRepository.findByUsername(username);
 	}
