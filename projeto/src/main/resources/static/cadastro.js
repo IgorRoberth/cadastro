@@ -6,8 +6,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const isenha = document.querySelector(".senha");
     const itel = document.querySelector(".tel");
 
-    function validarCampos() {
-        return (inome.value.trim() !== "" && iusername.value.trim() !== "" && iemail.value.trim() !== "" && isenha.value.trim() !== "" && itel.value.trim() !== "");
+      function validarCampos() {
+        if (inome.value.trim() === "") {
+            alert("Por favor, preencha o campo nome.");
+            return false;
+        }
+        if (iusername.value.trim() === "") {
+            alert("Por favor, preencha o campo username.");
+            return false;
+        }
+        if (iemail.value.trim() === "") {
+            alert("Por favor, preencha o campo email.");
+            return false;
+        }
+        if (isenha.value.trim() === "") {
+            alert("Por favor, preencha o campo senha.");
+            return false;
+        }
+        if (itel.value.trim() === "") {
+            alert("Por favor, preencha o campo telefone.");
+            return false;
+        }
+        return true;
     }
 
     function cadastrar() {

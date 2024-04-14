@@ -16,4 +16,7 @@ public class UsuarioService {
 	public Optional<Usuario> encontrarPorUsername(String username) {
 		return usuarioRepository.findByUsername(username);
 	}
+	 public void excluirUsuario(Usuario usuario) {
+	        usuarioRepository.delete(usuario);
+	    }
 }

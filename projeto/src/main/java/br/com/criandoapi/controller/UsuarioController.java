@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import br.com.criandoapi.projeto.DAO.IUsuario;
 import br.com.criandoapi.projeto.model.Usuario;
 import br.com.criandoapi.projeto.model.UsuarioService;
@@ -36,18 +39,17 @@ public class UsuarioController {
 
 	@Autowired
 	private UsuarioService usuarioService;
-	
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        return ResponseEntity
-                .status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body("Este endpoint suporta apenas solicitações POST.");
-    }
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+				.body("Este endpoint suporta apenas solicitações POST.");
+	}
 
 	@GetMapping
 	public ResponseEntity<Iterable<Usuario>> listaUsuarios() {
 		Iterable<Usuario> usuarios = dao.findAll();
-		return ResponseEntity.ok().body(usuarios);
+		return ResponseEntity.status(200).body(usuarios);
 	}
 
 	@PostMapping
@@ -75,59 +77,77 @@ public class UsuarioController {
 	public ResponseEntity<Usuario> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
 		Optional<Usuario> usuarioOptional = dao.findById(id);
 		if (usuarioOptional.isPresent()) {
-			Usuario usuarioEditado = usuarioOptional.get();
-			usuarioEditado.setNome(usuario.getNome());
-			usuarioEditado.setUsername(usuario.getUsername());
-			usuarioEditado.setEmail(usuario.getEmail());
-			usuarioEditado.setTelefone(usuario.getTelefone());
+			Usuario usuarioAtual = usuarioOptional.get();
+			if (dadosIguais(usuarioAtual, usuario)) {
+				return ResponseEntity.status(400).build();
+			}
+			usuarioAtual.setNome(usuario.getNome());
+			usuarioAtual.setUsername(usuario.getUsername());
+			usuarioAtual.setEmail(usuario.getEmail());
+			usuarioAtual.setTelefone(usuario.getTelefone());
 			if (usuario.getSenha() != null && !usuario.getSenha().isEmpty()) {
 				BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 				String senhaCriptografada = encoder.encode(usuario.getSenha());
-				usuarioEditado.setSenha(senhaCriptografada);
+				usuarioAtual.setSenha(senhaCriptografada);
 			}
-			Usuario usuarioAtualizado = dao.save(usuarioEditado);
+			Usuario usuarioAtualizado = dao.save(usuarioAtual);
 			return ResponseEntity.ok().body(usuarioAtualizado);
 		} else {
 			return ResponseEntity.notFound().build();
 		}
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> excluirUsuario(@PathVariable Integer id) {
-		Optional<Usuario> usuarioOptional = dao.findById(id);
-		if (usuarioOptional.isPresent()) {
-			dao.deleteById(id);
-			return ResponseEntity.status(204).build();
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+	private boolean dadosIguais(Usuario usuarioAtual, Usuario usuarioNovo) {
+		boolean nomeIgual = usuarioAtual.getNome().equals(usuarioNovo.getNome());
+		boolean usernameIgual = usuarioAtual.getUsername().equals(usuarioNovo.getUsername());
+		boolean emailIgual = usuarioAtual.getEmail().equals(usuarioNovo.getEmail());
+		boolean telefoneIgual = usuarioAtual.getTelefone().equals(usuarioNovo.getTelefone());
+		boolean senhaIgual = (usuarioNovo.getSenha() == null || usuarioNovo.getSenha().isEmpty()
+				|| senhaNaoModificada(usuarioAtual, usuarioNovo));
+
+		return nomeIgual && usernameIgual && emailIgual && telefoneIgual && senhaIgual;
 	}
-	
+
+	private boolean senhaNaoModificada(Usuario usuarioAtual, Usuario usuarioNovo) {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		return encoder.matches(usuarioNovo.getSenha(), usuarioAtual.getSenha());
+	}
+
 	@PostMapping("/login")
 	public ResponseEntity<?> checkUsuario(@RequestBody Map<String, String> loginRequest) {
-	    String username = loginRequest.get("username");
-	    String senha = loginRequest.get("senha");
-	    
-	    if (username == null || senha == null) {
-	        return ResponseEntity.badRequest()
-	                .body(Collections.singletonMap("erro", "Nome de usuário e senha são obrigatórios"));
-	    }
+		String username = loginRequest.get("username");
+		String senha = loginRequest.get("senha");
 
-	    Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
+		if (username == null || senha == null) {
+			return ResponseEntity.badRequest()
+					.body(Collections.singletonMap("erro", "Nome de usuário e senha são obrigatórios"));
+		}
 
-	    if (usuarioOptional.isPresent()) {
-	        Usuario usuario = usuarioOptional.get();
-	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-	        if (encoder.matches(senha, usuario.getSenha())) {
-	            return ResponseEntity.ok()
-	                    .body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
-	        } else {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                    .body(Collections.singletonMap("erro", "Senha incorreta"));
-	        }
-	    } else {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-	                .body(Collections.singletonMap("erro", "Usuário não cadastrado"));
-	    }
+		Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
+
+		if (usuarioOptional.isPresent()) {
+			Usuario usuario = usuarioOptional.get();
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			if (encoder.matches(senha, usuario.getSenha())) {
+				return ResponseEntity.ok().body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+						.body(Collections.singletonMap("erro", "Senha incorreta"));
+			}
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(Collections.singletonMap("erro", "Usuário não cadastrado"));
+		}
+	}
+
+	@DeleteMapping("/contadelete/{username}")
+	public ResponseEntity<?> excluirUsuarioPorNome(@PathVariable String username) {
+		Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
+		if (usuarioOptional.isPresent()) {
+			usuarioService.excluirUsuario(usuarioOptional.get());
+			return ResponseEntity.status(204).body("Conta excluída com sucesso!");
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
+		}
 	}
 }
