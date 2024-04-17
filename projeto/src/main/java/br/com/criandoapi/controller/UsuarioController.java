@@ -1,14 +1,12 @@
 package br.com.criandoapi.controller;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,23 +51,51 @@ public class UsuarioController {
 	}
 
 	@PostMapping
+	@Transactional
 	public ResponseEntity<?> criarUsuario(@Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			String mensagemErro = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
 					.collect(Collectors.joining("; "));
-			return ResponseEntity.badRequest().body(mensagemErro);
+			Map<String, String> responseBody = new HashMap<>();
+			responseBody.put("error", "Erro de validação");
+			responseBody.put("message", mensagemErro);
+			return ResponseEntity.badRequest().body(responseBody);
 		}
+
+		Map<String, String> campoRepetido = validarCamposUnicos(usuario);
+		if (!campoRepetido.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
+		}
+
 		try {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			String senhaCriptografada = encoder.encode(usuario.getSenha());
 			usuario.setSenha(senhaCriptografada);
 			Usuario usuarioNovo = dao.save(usuario);
 			return new ResponseEntity<>(usuarioNovo, HttpStatus.CREATED);
-		} catch (DataIntegrityViolationException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("O e-mail já está em uso.");
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno no servidor.");
+			Map<String, String> responseBody = new HashMap<>();
+			responseBody.put("error", "Erro interno");
+			responseBody.put("message", "Erro interno no servidor. Detalhes: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
 		}
+	}
+
+	private Map<String, String> validarCamposUnicos(Usuario usuario) {
+		Map<String, String> erros = new HashMap<>();
+		if (dao.existsByUsername(usuario.getUsername())) {
+			erros.put("error", "username");
+			erros.put("message", "O username já está em uso por outro usuário.");
+		}
+		if (dao.existsByEmail(usuario.getEmail())) {
+			erros.put("error", "email");
+			erros.put("message", "O email já está em uso por outro usuário.");
+		}
+		if (dao.existsByTelefone(usuario.getTelefone())) {
+			erros.put("error", "telefone");
+			erros.put("message", "O telefone já está em uso por outro usuário.");
+		}
+		return erros;
 	}
 
 	@PutMapping("/{id}")

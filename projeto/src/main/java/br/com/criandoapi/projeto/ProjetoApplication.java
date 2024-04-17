@@ -11,5 +11,5 @@ public class ProjetoApplication {
 		SpringApplication.run(ProjetoApplication.class, args);
 		
 		System.out.println("\u001B[32mServidor conectado: \u001B[0m");
-	}
+	}	
 }
