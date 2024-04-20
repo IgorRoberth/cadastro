@@ -61,13 +61,24 @@ public class UsuarioController {
 			responseBody.put("message", mensagemErro);
 			return ResponseEntity.badRequest().body(responseBody);
 		}
-
 		Map<String, String> campoRepetido = validarCamposUnicos(usuario);
 		if (!campoRepetido.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
 		}
 		if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
-		    return ResponseEntity.badRequest().body("O nome é obrigatório");
+		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo nome.");
+		}
+		if (usuario.getUsername() == null || usuario.getUsername().isEmpty()) {
+		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo username.");
+		}
+		if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
+		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo e-mail.");
+		}
+		if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
+		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo senha.");
+		}
+		if (usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
+		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo telefone.");
 		}
 
 		try {
@@ -134,7 +145,6 @@ public class UsuarioController {
 		boolean telefoneIgual = usuarioAtual.getTelefone().equals(usuarioNovo.getTelefone());
 		boolean senhaIgual = (usuarioNovo.getSenha() == null || usuarioNovo.getSenha().isEmpty()
 				|| senhaNaoModificada(usuarioAtual, usuarioNovo));
-
 		return nomeIgual && usernameIgual && emailIgual && telefoneIgual && senhaIgual;
 	}
 
