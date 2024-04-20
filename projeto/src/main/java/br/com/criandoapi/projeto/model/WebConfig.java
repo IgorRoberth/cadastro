@@ -1,4 +1,4 @@
-package br.com.criandoapi.projeto.model.webconfig;
+package br.com.criandoapi.projeto.model;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

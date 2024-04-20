@@ -1,6 +1,9 @@
 package br.com.criandoapi.projeto.model;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,24 +21,26 @@ public class Usuario {
 	@Column(name="id")
 	private Integer id;
 	
-	@Column(name="nome_completo", length = 200, nullable = true)
-	@NotBlank(message = "O nome não pode estar em branco")
+	@Column(name="nome_completo", length = 200)
+	@NotEmpty(message = "O campo nome não pode estar em braco")
 	private String nome;
 	
-	@Column(name="username", length = 20, nullable = true)
+	@Column(name="username", length = 20)
 	@NotBlank(message = "O username não pode estar em branco")
 	private String username;
 	
 	
-	@Column(name="email", length = 50, nullable = true)
+	@Column(name="email", length = 50)
 	@NotBlank(message = "O email não pode estar em branco")
+	@Email(message = "O email inserido não é válido")
 	private String email;
 	
-	@Column(name="senha", columnDefinition = "TEXT", nullable = true)
+	@Column(name="senha", columnDefinition = "TEXT")
 	@NotBlank(message = "A senha não pode estar em branco")
+	@Size(min = 6, max = 20, message = "A senha deve ter entre 6 e 20 caracteres")
 	private String senha;
 	
-	@Column(name="telefone", length = 15, nullable = true)
+	@Column(name="telefone", length = 15)
 	@NotBlank(message = "O telefone não pode estar em branco")
 	private String telefone;	
 	

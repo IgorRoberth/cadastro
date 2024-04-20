@@ -66,6 +66,9 @@ public class UsuarioController {
 		if (!campoRepetido.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
 		}
+		if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
+		    return ResponseEntity.badRequest().body("O nome é obrigatório");
+		}
 
 		try {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -95,6 +98,7 @@ public class UsuarioController {
 			erros.put("error", "telefone");
 			erros.put("message", "O telefone já está em uso por outro usuário.");
 		}
+		
 		return erros;
 	}
 
@@ -157,12 +161,12 @@ public class UsuarioController {
 			if (encoder.matches(senha, usuario.getSenha())) {
 				return ResponseEntity.ok().body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
 			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 						.body(Collections.singletonMap("erro", "Senha incorreta"));
 			}
 		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body(Collections.singletonMap("erro", "Usuário não cadastrado"));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Collections.singletonMap("erro", "Usuário não encontrado. Por favor, cadastre-se primeiro."));
 		}
 	}
 
