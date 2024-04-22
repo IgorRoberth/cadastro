@@ -66,19 +66,19 @@ public class UsuarioController {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
 		}
 		if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
-		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo nome.");
+			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo nome.");
 		}
 		if (usuario.getUsername() == null || usuario.getUsername().isEmpty()) {
-		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo username.");
+			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo username.");
 		}
 		if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
-		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo e-mail.");
+			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo e-mail.");
 		}
 		if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo senha.");
+			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo senha.");
 		}
 		if (usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
-		    return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo telefone.");
+			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo telefone.");
 		}
 
 		try {
@@ -109,28 +109,39 @@ public class UsuarioController {
 			erros.put("error", "telefone");
 			erros.put("message", "O telefone já está em uso por outro usuário.");
 		}
-		
+
 		return erros;
 	}
 
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<Usuario> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
+	public ResponseEntity<?> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
 		Optional<Usuario> usuarioOptional = dao.findById(id);
 		if (usuarioOptional.isPresent()) {
 			Usuario usuarioAtual = usuarioOptional.get();
-			if (dadosIguais(usuarioAtual, usuario)) {
-				return ResponseEntity.status(400).build();
+
+			if (contemNumeros(usuario.getNome())) {
+				return ResponseEntity.badRequest().body("O nome não pode conter números.");
 			}
+			if (contemNumeros(usuario.getEmail())) {
+				return ResponseEntity.badRequest().body("O nome não pode conter números.");
+			}
+			if (dadosIguais(usuarioAtual, usuario)) {
+				return ResponseEntity.badRequest().body("Nenhuma alteração foi detectada nos dados fornecidos.");
+			}
+
 			usuarioAtual.setNome(usuario.getNome());
 			usuarioAtual.setUsername(usuario.getUsername());
 			usuarioAtual.setEmail(usuario.getEmail());
 			usuarioAtual.setTelefone(usuario.getTelefone());
-			if (usuario.getSenha() != null && !usuario.getSenha().isEmpty()) {
+
+			if (usuario.getSenha() != null && !usuario.getSenha().isEmpty()
+					&& !senhaNaoModificada(usuarioAtual, usuario)) {
 				BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 				String senhaCriptografada = encoder.encode(usuario.getSenha());
 				usuarioAtual.setSenha(senhaCriptografada);
 			}
+
 			Usuario usuarioAtualizado = dao.save(usuarioAtual);
 			return ResponseEntity.ok().body(usuarioAtualizado);
 		} else {
@@ -151,6 +162,19 @@ public class UsuarioController {
 	private boolean senhaNaoModificada(Usuario usuarioAtual, Usuario usuarioNovo) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		return encoder.matches(usuarioNovo.getSenha(), usuarioAtual.getSenha());
+	}
+
+	private boolean contemNumeros(String texto) {
+		return texto != null && texto.matches(".*\\d.*");
+	}
+
+	@SuppressWarnings("unused")
+	private boolean formaDeEmailCorreto(String email) {
+		if (email == null) {
+			return false;
+		}
+		String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+		return email.matches(regex);
 	}
 
 	@PostMapping("/login")
