@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.criandoapi.projeto.DAO.IUsuario;
 import br.com.criandoapi.projeto.model.Usuario;
 import br.com.criandoapi.projeto.model.UsuarioService;
+import br.com.criandoapi.projeto.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
 
 @RestController
@@ -33,7 +33,7 @@ import jakarta.transaction.Transactional;
 public class UsuarioController {
 
 	@Autowired
-	private IUsuario dao;
+	private UsuarioRepository repository;
 
 	@Autowired
 	private UsuarioService usuarioService;
@@ -46,85 +46,95 @@ public class UsuarioController {
 
 	@GetMapping
 	public ResponseEntity<Iterable<Usuario>> listaUsuarios() {
-		Iterable<Usuario> usuarios = dao.findAll();
+		Iterable<Usuario> usuarios = repository.findAll();
 		return ResponseEntity.status(200).body(usuarios);
 	}
+	
+	@SuppressWarnings("unused")
+	private boolean contemNumeros(String texto) {
+		return texto != null && texto.matches(".*\\d.*");
+	}
 
+	@SuppressWarnings("unused")
+	private boolean formaDeEmailCorreto(String email) {
+	    if (email == null) {
+	        return false;
+	    }
+	    String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+	    return email.matches(regex);
+	}
+	
 	@PostMapping
 	@Transactional
 	public ResponseEntity<?> criarUsuario(@Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
-			String mensagemErro = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
-					.collect(Collectors.joining("; "));
-			Map<String, String> responseBody = new HashMap<>();
-			responseBody.put("error", "Erro de validação");
-			responseBody.put("message", mensagemErro);
-			return ResponseEntity.badRequest().body(responseBody);
-		}
-		Map<String, String> campoRepetido = validarCamposUnicos(usuario);
-		if (!campoRepetido.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
-		}
-		if (usuario.getNome() == null || usuario.getNome().isEmpty()) {
-			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo nome.");
-		}
-		if (usuario.getUsername() == null || usuario.getUsername().isEmpty()) {
-			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo username.");
-		}
-		if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
-			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo e-mail.");
-		}
-		if (usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo senha.");
-		}
-		if (usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
-			return ResponseEntity.badRequest().body("Para concluir o cadastro, preencha o campo telefone.");
-		}
+	    if (bindingResult.hasErrors()) {
+	        String mensagemErro = bindingResult.getAllErrors().stream()
+	                .map(ObjectError::getDefaultMessage)
+	                .collect(Collectors.joining("; "));
+	        return ResponseEntity.badRequest().body(mensagemErro);
+	    }
+	    
+	    if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
+		        usuario.getUsername() == null || usuario.getUsername().isEmpty() ||
+		        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
+		        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
+		        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
+		        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
+		    }
 
-		try {
-			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-			String senhaCriptografada = encoder.encode(usuario.getSenha());
-			usuario.setSenha(senhaCriptografada);
-			Usuario usuarioNovo = dao.save(usuario);
-			return new ResponseEntity<>(usuarioNovo, HttpStatus.CREATED);
-		} catch (Exception e) {
-			Map<String, String> responseBody = new HashMap<>();
-			responseBody.put("error", "Erro interno");
-			responseBody.put("message", "Erro interno no servidor. Detalhes: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
-		}
+	    if (contemNumeros(usuario.getNome())) {
+	        return ResponseEntity.badRequest().body("O nome não pode conter números.");
+	    }
+
+	    if (!formaDeEmailCorreto(usuario.getEmail())) {
+	        return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
+	    }
+	    
+	    Map<String, String> campoRepetido = validarCamposUnicos(usuario);
+	    if (!campoRepetido.isEmpty()) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
+	    }
+
+	    try {
+	        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	        String senhaCriptografada = encoder.encode(usuario.getSenha());
+	        usuario.setSenha(senhaCriptografada);
+	        Usuario usuarioNovo = repository.save(usuario);
+	        return new ResponseEntity<>(usuarioNovo, HttpStatus.CREATED);
+	    } catch (Exception e) {
+	        Map<String, String> responseBody = new HashMap<>();
+	        responseBody.put("error", "Erro interno");
+	        responseBody.put("message", "Erro interno no servidor. Detalhes: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+	    }
 	}
 
 	private Map<String, String> validarCamposUnicos(Usuario usuario) {
-		Map<String, String> erros = new HashMap<>();
-		if (dao.existsByUsername(usuario.getUsername())) {
-			erros.put("error", "username");
-			erros.put("message", "O username já está em uso por outro usuário.");
-		}
-		if (dao.existsByEmail(usuario.getEmail())) {
-			erros.put("error", "email");
-			erros.put("message", "O email já está em uso por outro usuário.");
-		}
-		if (dao.existsByTelefone(usuario.getTelefone())) {
-			erros.put("error", "telefone");
-			erros.put("message", "O telefone já está em uso por outro usuário.");
-		}
-
-		return erros;
+	    Map<String, String> erros = new HashMap<>();
+	    if (repository.existsByUsername(usuario.getUsername())) {
+	        erros.put("username", "O username já está em uso por outro usuário.");
+	    }
+	    if (repository.existsByEmail(usuario.getEmail())) {
+	        erros.put("email", "O email já está em uso por outro usuário.");
+	    }
+	    if (repository.existsByTelefone(usuario.getTelefone())) {
+	        erros.put("telefone", "O telefone já está em uso por outro usuário.");
+	    }
+	    return erros;
 	}
 
 	@PutMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
-		Optional<Usuario> usuarioOptional = dao.findById(id);
+		Optional<Usuario> usuarioOptional = repository.findById(id);
 		if (usuarioOptional.isPresent()) {
 			Usuario usuarioAtual = usuarioOptional.get();
 
 			if (contemNumeros(usuario.getNome())) {
 				return ResponseEntity.badRequest().body("O nome não pode conter números.");
 			}
-			if (contemNumeros(usuario.getEmail())) {
-				return ResponseEntity.badRequest().body("O nome não pode conter números.");
+			if (!formaDeEmailCorreto(usuario.getEmail())) {
+				return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
 			}
 			if (dadosIguais(usuarioAtual, usuario)) {
 				return ResponseEntity.badRequest().body("Nenhuma alteração foi detectada nos dados fornecidos.");
@@ -142,7 +152,7 @@ public class UsuarioController {
 				usuarioAtual.setSenha(senhaCriptografada);
 			}
 
-			Usuario usuarioAtualizado = dao.save(usuarioAtual);
+			Usuario usuarioAtualizado = repository.save(usuarioAtual);
 			return ResponseEntity.ok().body(usuarioAtualizado);
 		} else {
 			return ResponseEntity.notFound().build();
@@ -162,19 +172,6 @@ public class UsuarioController {
 	private boolean senhaNaoModificada(Usuario usuarioAtual, Usuario usuarioNovo) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		return encoder.matches(usuarioNovo.getSenha(), usuarioAtual.getSenha());
-	}
-
-	private boolean contemNumeros(String texto) {
-		return texto != null && texto.matches(".*\\d.*");
-	}
-
-	@SuppressWarnings("unused")
-	private boolean formaDeEmailCorreto(String email) {
-		if (email == null) {
-			return false;
-		}
-		String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-		return email.matches(regex);
 	}
 
 	@PostMapping("/login")
