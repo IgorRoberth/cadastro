@@ -129,6 +129,14 @@ public class UsuarioController {
 		Optional<Usuario> usuarioOptional = repository.findById(id);
 		if (usuarioOptional.isPresent()) {
 			Usuario usuarioAtual = usuarioOptional.get();
+			
+			if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
+			        usuario.getUsername() == null || usuario.getUsername().isEmpty() ||
+			        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
+			        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
+			        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
+			        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
+			   }
 
 			if (contemNumeros(usuario.getNome())) {
 				return ResponseEntity.badRequest().body("O nome não pode conter números.");
