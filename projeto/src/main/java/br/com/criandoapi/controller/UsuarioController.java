@@ -50,19 +50,22 @@ public class UsuarioController {
 		return ResponseEntity.status(200).body(usuarios);
 	}
 	
-	@SuppressWarnings("unused")
 	private boolean contemNumeros(String texto) {
 		return texto != null && texto.matches(".*\\d.*");
 	}
 
-	@SuppressWarnings("unused")
 	private boolean formaDeEmailCorreto(String email) {
 	    if (email == null) {
 	        return false;
 	    }
-	    String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+	    String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com)$";
 	    return email.matches(regex);
 	}
+	
+	private boolean apenasNumeros(String telefone) {
+	    return telefone != null && telefone.matches("[0-9]+");
+	}
+
 	
 	@PostMapping
 	@Transactional
@@ -90,6 +93,10 @@ public class UsuarioController {
 	        return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
 	    }
 	    
+	    if(!apenasNumeros(usuario.getTelefone())) {
+           return ResponseEntity.badRequest().body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");	    	
+	    }
+	    
 	    Map<String, String> campoRepetido = validarCamposUnicos(usuario);
 	    if (!campoRepetido.isEmpty()) {
 	        return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
@@ -115,7 +122,7 @@ public class UsuarioController {
 	        erros.put("username", "O username já está em uso por outro usuário.");
 	    }
 	    if (repository.existsByEmail(usuario.getEmail())) {
-	        erros.put("email", "O email já está em uso por outro usuário.");
+	        erros.put("e-mail", "O email já está em uso por outro usuário.");
 	    }
 	    if (repository.existsByTelefone(usuario.getTelefone())) {
 	        erros.put("telefone", "O telefone já está em uso por outro usuário.");
@@ -144,6 +151,9 @@ public class UsuarioController {
 			if (!formaDeEmailCorreto(usuario.getEmail())) {
 				return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
 			}
+			if(!apenasNumeros(usuario.getTelefone())) {
+		           return ResponseEntity.badRequest().body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");	    	
+			    }
 			if (dadosIguais(usuarioAtual, usuario)) {
 				return ResponseEntity.badRequest().body("Nenhuma alteração foi detectada nos dados fornecidos.");
 			}
@@ -183,7 +193,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> checkUsuario(@RequestBody Map<String, String> loginRequest) {
+	public ResponseEntity<?> loginUsuario(@RequestBody Map<String, String> loginRequest) {
 		String username = loginRequest.get("username");
 		String senha = loginRequest.get("senha");
 
@@ -200,11 +210,11 @@ public class UsuarioController {
 			if (encoder.matches(senha, usuario.getSenha())) {
 				return ResponseEntity.ok().body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
 			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND)
-						.body(Collections.singletonMap("erro", "Senha incorreta"));
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(Collections.singletonMap("erro", "Senha incorreta ou não foi fornecida. Por favor, verifique."));
 			}
 		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(Collections.singletonMap("erro", "Usuário não encontrado. Por favor, cadastre-se primeiro."));
 		}
 	}
