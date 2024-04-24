@@ -58,14 +58,13 @@ public class UsuarioController {
 	    if (email == null) {
 	        return false;
 	    }
-	    String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com)$";
+	    String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com)(\\.br)?$";
 	    return email.matches(regex);
-	}
+	}	
 	
 	private boolean apenasNumeros(String telefone) {
 	    return telefone != null && telefone.matches("[0-9]+");
 	}
-
 	
 	@PostMapping
 	@Transactional
@@ -76,14 +75,14 @@ public class UsuarioController {
 	                .collect(Collectors.joining("; "));
 	        return ResponseEntity.badRequest().body(mensagemErro);
 	    }
-	    
+
 	    if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
-		        usuario.getUsername() == null || usuario.getUsername().isEmpty() ||
-		        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
-		        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
-		        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
-		        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
-		    }
+	        usuario.getUsername() == null || usuario.getUsername().isEmpty() ||
+	        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
+	        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
+	        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
+	        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
+	    }
 
 	    if (contemNumeros(usuario.getNome())) {
 	        return ResponseEntity.badRequest().body("O nome não pode conter números.");
@@ -94,12 +93,12 @@ public class UsuarioController {
 	    }
 	    
 	    if(!apenasNumeros(usuario.getTelefone())) {
-           return ResponseEntity.badRequest().body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");	    	
+	        return ResponseEntity.badRequest().body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");	    	
 	    }
 	    
-	    Map<String, String> campoRepetido = validarCamposUnicos(usuario);
-	    if (!campoRepetido.isEmpty()) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body(campoRepetido);
+	    String campoRepetido = validarCamposUnicos(usuario);
+	    if (campoRepetido != null) {
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(Collections.singletonMap("error", campoRepetido));
 	    }
 
 	    try {
@@ -116,19 +115,19 @@ public class UsuarioController {
 	    }
 	}
 
-	private Map<String, String> validarCamposUnicos(Usuario usuario) {
-	    Map<String, String> erros = new HashMap<>();
+	private String validarCamposUnicos(Usuario usuario) {
 	    if (repository.existsByUsername(usuario.getUsername())) {
-	        erros.put("username", "O username já está em uso por outro usuário.");
+	        return "O username já está em uso por outro usuário.";
 	    }
 	    if (repository.existsByEmail(usuario.getEmail())) {
-	        erros.put("e-mail", "O email já está em uso por outro usuário.");
+	        return "O email já está em uso por outro usuário.";
 	    }
 	    if (repository.existsByTelefone(usuario.getTelefone())) {
-	        erros.put("telefone", "O telefone já está em uso por outro usuário.");
+	        return "O telefone já está em uso por outro usuário.";
 	    }
-	    return erros;
+	    return null;
 	}
+
 
 	@PutMapping("/{id}")
 	@Transactional
@@ -169,7 +168,6 @@ public class UsuarioController {
 				String senhaCriptografada = encoder.encode(usuario.getSenha());
 				usuarioAtual.setSenha(senhaCriptografada);
 			}
-
 			Usuario usuarioAtualizado = repository.save(usuarioAtual);
 			return ResponseEntity.ok().body(usuarioAtualizado);
 		} else {
@@ -208,14 +206,14 @@ public class UsuarioController {
 			Usuario usuario = usuarioOptional.get();
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			if (encoder.matches(senha, usuario.getSenha())) {
-				return ResponseEntity.ok().body(Collections.singletonMap("mensagem", "Login realizado com sucesso"));
+				return ResponseEntity.ok().body(Collections.singletonMap("mensagem", "Login realizado com sucesso."));
 			} else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 						.body(Collections.singletonMap("erro", "Senha incorreta ou não foi fornecida. Por favor, verifique."));
 			}
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Collections.singletonMap("erro", "Usuário não encontrado. Por favor, cadastre-se primeiro."));
+					.body(Collections.singletonMap("erro", "Usuário não encontrado. Por favor, cadastre-se primeiro ou verifique suas credenciais e tente novamente."));
 		}
 	}
 
