@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const excluirUsuario = (nomeUsuario) => { // Recebendo o nome do usuário como parâmetro
-        fetch(`/usuarios/contadelete/${nomeUsuario}`, { // Usando o endpoint correto com o nome do usuário
+    const excluirUsuario = (nomeUsuario) => {
+        fetch(`/usuarios/contadelete/${nomeUsuario}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'

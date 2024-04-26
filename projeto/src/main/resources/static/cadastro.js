@@ -7,30 +7,21 @@ document.addEventListener('DOMContentLoaded', function() {
 	const itel = document.querySelector(".tel");
 
 	function validarCampos() {
-		if (inome.value.trim() === "") {
-			alert("Por favor, preencha o campo nome.");
-			return false;
-		}
-		if (iusername.value.trim() === "") {
-			alert("Por favor, preencha o campo username.");
-			return false;
-		}
-		if (iemail.value.trim() === "") {
-			alert("Por favor, preencha o campo email.");
-			return false;
-		}
-		if (isenha.value.trim() === "") {
-			alert("Por favor, preencha o campo senha.");
-			return false;
-		}
-		if (itel.value.trim() === "") {
-			alert("Por favor, preencha o campo telefone.");
-			return false;
-		}
-		return true;
+		return (
+			inome.value.trim() !== "" &&
+			iusername.value.trim() !== "" &&
+			iemail.value.trim() !== "" &&
+			isenha.value.trim() !== "" &&
+			itel.value.trim() !== ""
+		);
 	}
 
 	function cadastrar() {
+		if (!validarCampos()) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
+
 		fetch("http://localhost:8002/usuarios", {
 			headers: {
 				'Accept': 'application/json',
@@ -46,27 +37,24 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 		})
 			.then(function(res) {
-				if (!res.ok) {
-					if (res.headers.get('Content-Type').includes('application/json')) {
-						return res.json();
-					} else {
-						throw new Error('Ocorreu um erro ao processar a sua solicitação.');
-					}
+				if (res.ok) {
+					return res.json();
+				} else if (res.status === 400 || res.status === 409) {
+					return res.json().then(function(errorData) {
+						throw new Error(errorData.error || "Erro desconhecido ao cadastrar o usuário.");
+					});
+				} else {
+					throw new Error("Ocorreu um erro ao cadastrar o usuário.");
 				}
-				return res.json();
 			})
 			.then(function(data) {
-				if (data.error) { 
-					throw new Error(data.message);
-				}
-				console.log(data);
 				alert("Usuário cadastrado com sucesso!");
 				limpar();
 				window.location.href = '/login.html';
 			})
 			.catch(function(error) {
-				console.log(error);
-				alert(error.message);
+				console.error(error);
+				alert("Erro ao cadastrar o usuário: " + error.message);
 			});
 	}
 
@@ -80,8 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	formulario.addEventListener('submit', function(event) {
 		event.preventDefault();
-		if (validarCampos()) {
-			cadastrar();
-		}
+		cadastrar();
 	});
 });

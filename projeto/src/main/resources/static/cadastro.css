@@ -13,7 +13,7 @@ body {
 }
 
 .box {
-    text-align: left; /* Alinha o texto à esquerda */
+    text-align: left;
     background-color: #fff;
     padding: 40px; 
     border-radius: 10px;

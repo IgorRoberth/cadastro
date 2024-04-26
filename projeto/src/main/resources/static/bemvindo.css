@@ -1,6 +1,6 @@
 .botao-excluir {
-    background-color: #007bff; /* Azul */
-    color: #fff; /* Branca */
+    background-color: #007bff;
+    color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -8,5 +8,5 @@
 }
 
 .botao-excluir:hover {
-    background-color: #0056b3; /* Azul mais escuro no hover */
+    background-color: #0056b3;
 }

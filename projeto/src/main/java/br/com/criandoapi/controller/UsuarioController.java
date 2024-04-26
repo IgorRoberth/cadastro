@@ -58,7 +58,7 @@ public class UsuarioController {
 	    if (email == null) {
 	        return false;
 	    }
-	    String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com)(\\.br)?$";
+	    String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com|email\\.com)(\\.br)?$";
 	    return email.matches(regex);
 	}	
 	
@@ -81,7 +81,7 @@ public class UsuarioController {
 	        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
 	        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
 	        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
-	        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
+	        return ResponseEntity.badRequest().body("Para concluir o cadastro é necessário preencher todos os campos.");
 	    }
 
 	    if (contemNumeros(usuario.getNome())) {
@@ -141,7 +141,7 @@ public class UsuarioController {
 			        usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
 			        usuario.getSenha() == null || usuario.getSenha().isEmpty() ||
 			        usuario.getTelefone() == null || usuario.getTelefone().isEmpty()) {
-			        return ResponseEntity.badRequest().body("Para concluir o cadastro, é necessário preencher todos os campos.");
+			        return ResponseEntity.badRequest().body("Para concluir atualização dos novos dados é necessário preencher todos os campos.");
 			   }
 
 			if (contemNumeros(usuario.getNome())) {
@@ -197,7 +197,7 @@ public class UsuarioController {
 
 		if (username == null || senha == null) {
 			return ResponseEntity.badRequest()
-					.body(Collections.singletonMap("erro", "Nome de usuário e senha são obrigatórios"));
+					.body(Collections.singletonMap("erro", "Username e senha são obrigatórios"));
 		}
 
 		Optional<Usuario> usuarioOptional = usuarioService.encontrarPorUsername(username);
