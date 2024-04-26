@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnExcluir = document.getElementById("excluirUsuario");
     btnExcluir.addEventListener("click", function() {
         if (confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.")) {
-            excluirUsuario(nomeUsuario); // Passando o nome do usuário para a função excluirUsuario
+            excluirUsuario(nomeUsuario);
         }
     });
 

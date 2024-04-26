@@ -43,7 +43,7 @@ input[type="text"], input[type="password"], input[type="tel"] {
     height: 35px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    padding: 10px; /* Aumenta o padding para espaço lateral */
+    padding: 10px;
     margin-bottom: 10px; 
 }
 
