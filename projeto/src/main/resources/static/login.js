@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (response.status === 400) {
-                alert("Credenciais inválidas. Por favor, verifique seu nome de usuário e senha.");
+                alert("Error: Não existe cadastro associado às credenciais");
             } else if (response.ok) {
                 window.location.href = '/bemvindo.html?nome=' + username;
             } else {

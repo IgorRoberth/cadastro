@@ -85,15 +85,15 @@ public class UsuarioController {
 	    }
 
 	    if (contemNumeros(usuario.getNome())) {
-	        return ResponseEntity.badRequest().body("O nome não pode conter números.");
+	        return ResponseEntity.badRequest().body("{\"error\":\"O nome não pode conter números.\"}");
 	    }
 
 	    if (!formaDeEmailCorreto(usuario.getEmail())) {
-	        return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
+	        return ResponseEntity.badRequest().body("{\"error\":\"O e-mail está escrito de forma incorreta.\"}");
 	    }
 	    
 	    if(!apenasNumeros(usuario.getTelefone())) {
-	        return ResponseEntity.badRequest().body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");	    	
+	        return ResponseEntity.badRequest().body("{\"error\":\"O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.\"}");	    	
 	    }
 	    
 	    String campoRepetido = validarCamposUnicos(usuario);
@@ -127,7 +127,6 @@ public class UsuarioController {
 	    }
 	    return null;
 	}
-
 
 	@PutMapping("/{id}")
 	@Transactional
