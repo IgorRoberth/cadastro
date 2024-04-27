@@ -15,8 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ username: username, senha: password })
             });
 
+            const responseData = await response.json();
+
             if (response.status === 400) {
-                alert("Error: Não existe cadastro associado às credenciais");
+                if (responseData.erro === 'Mensagens de exceções.') {
+                    alert('Erro: Username e senha são obrigatórios');
+                } else if (responseData.erro === 'Senha incorreta ou não foi fornecida. Por favor, verifique.') {
+                    alert('Erro: Senha incorreta ou não foi fornecida. Por favor, verifique.');
+                } else if (responseData.erro === 'Usuário não encontrado. Por favor, cadastre-se primeiro ou verifique suas credenciais e tente novamente.') {
+                    alert('Erro: Usuário não encontrado. Por favor, cadastre-se primeiro ou verifique suas credenciais e tente novamente.');
+                } else {
+                    alert('Erro desconhecido: ' + responseData.erro);
+                }
             } else if (response.ok) {
                 window.location.href = '/bemvindo.html?nome=' + username;
             } else {
