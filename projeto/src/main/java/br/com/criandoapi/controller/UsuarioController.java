@@ -13,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import br.com.criandoapi.projeto.dto.UsuarioDTO;
 import br.com.criandoapi.projeto.model.Usuario;
 import br.com.criandoapi.projeto.model.UsuarioService;
@@ -43,43 +40,11 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-	public ResponseEntity<?> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-				.body("Este endpoint suporta apenas solicitações POST.");
-	}
-
 	@GetMapping
 	public ResponseEntity<List<UsuarioDTO>> listaUsuarios() {
 		List<Usuario> usuarios = usuarioService.findAll();
-		List<UsuarioDTO> usuarioDTOs = usuarios.stream().map(this::convertToDTO).collect(Collectors.toList());
+		List<UsuarioDTO> usuarioDTOs = usuarios.stream().map(usuarioService::convertToDTO).collect(Collectors.toList());
 		return ResponseEntity.ok(usuarioDTOs);
-	}
-
-	private UsuarioDTO convertToDTO(Usuario usuario) {
-		UsuarioDTO dto = new UsuarioDTO();
-		dto.setId(usuario.getId());
-		dto.setNome(usuario.getNome());
-		dto.setUsername(usuario.getUsername());
-		dto.setEmail(usuario.getEmail());
-		dto.setTelefone(usuario.getTelefone());
-		return dto;
-	}
-
-	private boolean contemNumeros(String texto) {
-		return texto != null && texto.matches(".*\\d.*");
-	}
-
-	private boolean formaDeEmailCorreto(String email) {
-		if (email == null) {
-			return false;
-		}
-		String regex = "^[A-Za-z0-9+_.-]+@(gmail\\.com|bol\\.com|yahoo\\.com|hotmail\\.com|outlook\\.com|email\\.com)(\\.br)?$";
-		return email.matches(regex);
-	}
-
-	private boolean apenasNumeros(String telefone) {
-		return telefone != null && telefone.matches("[0-9]+");
 	}
 
 	@PostMapping
@@ -91,17 +56,32 @@ public class UsuarioController {
 			return ResponseEntity.badRequest().body(mensagemErro);
 		}
 
+		ResponseEntity<?> campoInvalidoResponse = usuarioService.validarCampo(usuarioDTO);
+		if (campoInvalidoResponse != null) {
+			return campoInvalidoResponse;
+		}
+
 		try {
+			if (!usuarioService.contemNumeros(usuarioDTO.getNome())) {
+				return ResponseEntity.badRequest()
+						.body("{\"error\":\"O nome não pode conter números ou caracteres especiais.\"}");
+			}
+			if (!usuarioService.formaDeEmailCorreto(usuarioDTO.getEmail())) {
+				return ResponseEntity.badRequest().body("{\"error\":\"O e-mail está escrito de forma incorreta.\"}");
+			}
+			if (!usuarioService.apenasNumeros(usuarioDTO.getTelefone())) {
+				return ResponseEntity.badRequest()
+						.body("{\"error\":\"O campo telefone não pode conter letras ou caracteres especiais.\"}");
+			}
 			if (usuarioService.existeEmail(usuarioDTO.getEmail())) {
-				return ResponseEntity.status(HttpStatus.CONFLICT).body("O e-mail já está em uso.");
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O e-mail já está em uso.\"}");
 			}
 			if (usuarioService.existeTelefone(usuarioDTO.getTelefone())) {
-				return ResponseEntity.status(HttpStatus.CONFLICT).body("O telefone já está em uso.");
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O telefone já está em uso.\"}");
 			}
 			if (usuarioService.existeUsername(usuarioDTO.getUsername())) {
-				return ResponseEntity.status(HttpStatus.CONFLICT).body("O nome de usuário já está em uso.");
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O username já está em uso.\"}");
 			}
-			
 			Usuario usuario = usuarioService.convertToEntity(usuarioDTO);
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			String senhaCriptografada = encoder.encode(usuarioDTO.getSenha());
@@ -119,64 +99,47 @@ public class UsuarioController {
 
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<?> editarUsuario(@PathVariable Integer id, @RequestBody Usuario usuario) {
+	public ResponseEntity<?> editarUsuario(@PathVariable Integer id, @RequestBody UsuarioDTO usuarioDTO) {
 		Optional<Usuario> usuarioOptional = repository.findById(id);
-		if (usuarioOptional.isPresent()) {
-			Usuario usuarioAtual = usuarioOptional.get();
-
-			if (usuario.getNome() == null || usuario.getNome().isEmpty() || usuario.getUsername() == null
-					|| usuario.getUsername().isEmpty() || usuario.getEmail() == null || usuario.getEmail().isEmpty()
-					|| usuario.getSenha() == null || usuario.getSenha().isEmpty() || usuario.getTelefone() == null
-					|| usuario.getTelefone().isEmpty()) {
-				return ResponseEntity.badRequest()
-						.body("Para concluir atualização dos novos dados é necessário preencher todos os campos.");
-			}
-
-			if (contemNumeros(usuario.getNome())) {
-				return ResponseEntity.badRequest().body("O nome não pode conter números.");
-			}
-			if (!formaDeEmailCorreto(usuario.getEmail())) {
-				return ResponseEntity.badRequest().body("O e-mail está escrito de forma incorreta.");
-			}
-			if (!apenasNumeros(usuario.getTelefone())) {
-				return ResponseEntity.badRequest()
-						.body("O campo telefone não pode conter letras ou qualquer tipo de caracteres especiais.");
-			}
-			if (dadosIguais(usuarioAtual, usuario)) {
-				return ResponseEntity.badRequest().body("Nenhuma alteração foi detectada nos dados fornecidos.");
-			}
-
-			usuarioAtual.setNome(usuario.getNome());
-			usuarioAtual.setUsername(usuario.getUsername());
-			usuarioAtual.setEmail(usuario.getEmail());
-			usuarioAtual.setTelefone(usuario.getTelefone());
-
-			if (usuario.getSenha() != null && !usuario.getSenha().isEmpty()
-					&& !senhaNaoModificada(usuarioAtual, usuario)) {
-				BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-				String senhaCriptografada = encoder.encode(usuario.getSenha());
-				usuarioAtual.setSenha(senhaCriptografada);
-			}
-			Usuario usuarioAtualizado = repository.save(usuarioAtual);
-			return ResponseEntity.ok().body(usuarioAtualizado);
-		} else {
+		if (!usuarioOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-	}
 
-	private boolean dadosIguais(Usuario usuarioAtual, Usuario usuarioNovo) {
-		boolean nomeIgual = usuarioAtual.getNome().equals(usuarioNovo.getNome());
-		boolean usernameIgual = usuarioAtual.getUsername().equals(usuarioNovo.getUsername());
-		boolean emailIgual = usuarioAtual.getEmail().equals(usuarioNovo.getEmail());
-		boolean telefoneIgual = usuarioAtual.getTelefone().equals(usuarioNovo.getTelefone());
-		boolean senhaIgual = (usuarioNovo.getSenha() == null || usuarioNovo.getSenha().isEmpty()
-				|| senhaNaoModificada(usuarioAtual, usuarioNovo));
-		return nomeIgual && usernameIgual && emailIgual && telefoneIgual && senhaIgual;
-	}
+		ResponseEntity<?> campoInvalidoResponse = usuarioService.validarCampo(usuarioDTO);
+		if (campoInvalidoResponse != null) {
+			return campoInvalidoResponse;
+		}
 
-	private boolean senhaNaoModificada(Usuario usuarioAtual, Usuario usuarioNovo) {
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		return encoder.matches(usuarioNovo.getSenha(), usuarioAtual.getSenha());
+		if (!usuarioService.contemNumeros(usuarioDTO.getNome())) {
+			return ResponseEntity.badRequest()
+					.body("{\"error\":\"O nome não pode conter números ou caracteres especiais.\"}");
+		}
+		if (!usuarioService.formaDeEmailCorreto(usuarioDTO.getEmail())) {
+			return ResponseEntity.badRequest().body("{\"error\":\"O e-mail está escrito de forma incorreta.\"}");
+		}
+		if (!usuarioService.apenasNumeros(usuarioDTO.getTelefone())) {
+			return ResponseEntity.badRequest()
+					.body("{\"error\":\"O campo telefone não pode conter letras ou caracteres especiais.\"}");
+		}
+
+		Usuario usuarioAtual = usuarioOptional.get();
+		ResponseEntity<?> unicidadeResponse = usuarioService.verificarUnicidadeDeUsuario(usuarioDTO, usuarioAtual);
+		if (unicidadeResponse != null) {
+			return unicidadeResponse;
+		}
+		usuarioAtual.setNome(usuarioDTO.getNome());
+		usuarioAtual.setUsername(usuarioDTO.getUsername());
+		usuarioAtual.setEmail(usuarioDTO.getEmail());
+		usuarioAtual.setTelefone(usuarioDTO.getTelefone());
+
+		if (usuarioDTO.getSenha() != null && !usuarioDTO.getSenha().isEmpty()) {
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			String senhaCriptografada = encoder.encode(usuarioDTO.getSenha());
+			usuarioAtual.setSenha(senhaCriptografada);
+		}
+		Usuario usuarioAtualizado = repository.save(usuarioAtual);
+		UsuarioDTO usuarioAtualizadoDTO = usuarioService.convertToDTO(usuarioAtualizado);
+		return ResponseEntity.ok(usuarioAtualizadoDTO);
 	}
 
 	@PostMapping("/login")
