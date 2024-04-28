@@ -70,7 +70,7 @@ public class UsuarioDTO {
     public void setId(Integer id) {
         this.id = id;
     }
-
+    
     public Usuario toUsuario() {
         Usuario usuario = new Usuario();
         usuario.setNome(this.nome);

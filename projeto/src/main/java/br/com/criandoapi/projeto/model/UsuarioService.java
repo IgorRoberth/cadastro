@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import br.com.criandoapi.projeto.dto.UsuarioDTO;
 import br.com.criandoapi.projeto.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
@@ -120,18 +119,18 @@ public class UsuarioService {
 			throw new IllegalArgumentException("O telefone já está em uso por outro usuário.");
 		}
 	}
-	
+
 	public ResponseEntity<?> verificarUnicidadeDeUsuario(UsuarioDTO usuarioDTO, Usuario usuarioAtual) {
-	    if (!usuarioDTO.getEmail().equals(usuarioAtual.getEmail()) && existeEmail(usuarioDTO.getEmail())) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O e-mail já está em uso.\"}");
-	    }
-	    if (!usuarioDTO.getTelefone().equals(usuarioAtual.getTelefone()) && existeTelefone(usuarioDTO.getTelefone())) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O telefone já está em uso.\"}");
-	    }
-	    if (!usuarioDTO.getUsername().equals(usuarioAtual.getUsername()) && existeUsername(usuarioDTO.getUsername())) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O username já está em uso.\"}");
-	    }
-	    return null;
+		if (!usuarioDTO.getEmail().equals(usuarioAtual.getEmail()) && existeEmail(usuarioDTO.getEmail())) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O e-mail já está em uso.\"}");
+		}
+		if (!usuarioDTO.getTelefone().equals(usuarioAtual.getTelefone()) && existeTelefone(usuarioDTO.getTelefone())) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O telefone já está em uso.\"}");
+		}
+		if (!usuarioDTO.getUsername().equals(usuarioAtual.getUsername()) && existeUsername(usuarioDTO.getUsername())) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("{\"error\":\"O username já está em uso.\"}");
+		}
+		return null;
 	}
 
 	public boolean contemNumeros(String texto) {
