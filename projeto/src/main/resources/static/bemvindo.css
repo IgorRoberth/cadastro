@@ -10,3 +10,93 @@
 .botao-excluir:hover {
     background-color: #0056b3;
 }
+
+form#produtoForm {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    max-width: 400px;
+}
+
+form#produtoForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form#produtoForm input[type="text"],
+form#produtoForm input[type="number"],
+form#produtoForm input[type="url"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form#produtoForm button[type="submit"] {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form#produtoForm button[type="submit"]:hover {
+    background-color: #218838;
+}
+
+/* Estilo para o carrinho de compras */
+#carrinho {
+    margin-top: 20px;
+}
+
+#carrinho div {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+#carrinho img {
+    margin-right: 15px;
+    border-radius: 5px;
+}
+
+#carrinho h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+#carrinho p {
+    margin: 5px 0;
+    color: #666;
+}
+
+#carrinho span {
+    font-weight: bold;
+    color: #000;
+}
+
+#carrinho button {
+    margin-left: auto;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#carrinho button:hover {
+    background-color: #c82333;
+}

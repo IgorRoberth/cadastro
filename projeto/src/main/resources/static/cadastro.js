@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			alert("Por favor, preencha todos os campos.");
 			return;
 		}
-
+		
 		fetch("http://localhost:8002/usuarios", {
 			headers: {
 				'Accept': 'application/json',

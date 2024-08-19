@@ -148,4 +148,19 @@ public class UsuarioService {
 	public boolean apenasNumeros(String telefone) {
 		return telefone != null && telefone.matches("[0-9]+");
 	}
+
+	public static String validarSenha(String senha) {
+		if (senha.length() < 8) {
+			return "A senha deve ter pelo menos 8 carácteres.";
+		} else if (!senha.matches(".*[A-Z].*")) {
+			return "A senha deve conter pelo menos uma letra maiúscula.";
+		} else if (!senha.matches(".*[a-z].*")) {
+			return "A senha deve conter pelo menos uma letra minúscula.";
+		} else if (!senha.matches(".*[0-9].*")) {
+			return "A senha deve conter pelo menos um número.";
+		} else if (!senha.matches(".*[!@#$%^&*()-+=].*")) {
+			return "A senha deve conter pelo menos um caráctere especial.";
+		}
+		return null;
+	}
 }

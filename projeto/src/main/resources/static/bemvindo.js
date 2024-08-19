@@ -1,37 +1,41 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const nomeUsuario = urlParams.get('nome');
+    const produtoForm = document.getElementById('produtoForm');
 
-    if (nomeUsuario) {
-        const welcomeMessage = document.getElementById("welcomeMessage");
-        welcomeMessage.textContent = `Seja Bem Vindo(a), ${nomeUsuario}!`;
-    }
+    produtoForm.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    const btnExcluir = document.getElementById("excluirUsuario");
-    btnExcluir.addEventListener("click", function() {
-        if (confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.")) {
-            excluirUsuario(nomeUsuario);
+        const nome = document.getElementById('nomeProduto').value;
+        const preco = parseFloat(document.getElementById('precoProduto').value);
+        const descricao = document.getElementById('descricaoProduto').value;
+        const imagem = document.getElementById('imagemProduto').files[0];
+
+        // Converte a imagem para Base64 para poder armazenar
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            const imageDataUrl = reader.result;
+
+            // Recupera produtos do localStorage
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+            // Adiciona novo produto ao array
+            produtos.push({
+                nome: nome,
+                preco: preco,
+                descricao: descricao,
+                imagem: imageDataUrl
+            });
+
+            // Salva produtos no localStorage
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+
+            // Limpa o formulário
+            produtoForm.reset();
+
+            alert('Produto adicionado com sucesso!');
+        };
+
+        if (imagem) {
+            reader.readAsDataURL(imagem);
         }
     });
-
-    const excluirUsuario = (nomeUsuario) => {
-        fetch(`/usuarios/contadelete/${nomeUsuario}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert("Conta excluída com sucesso!");
-                    window.location.href = '/login.html';
-                } else {
-                    throw new Error('Erro ao excluir usuário');
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao excluir usuário:', error);
-                alert("Ocorreu um erro ao excluir o usuário. Por favor, tente novamente mais tarde.");
-            });
-      };
 });

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
     <link rel="stylesheet" href="./login.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"> <!-- Adicionado favicon -->
 </head>
 <body>
     <div class="name">
@@ -19,9 +20,12 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
+            <div class="loginForm">
+                <a href="forgot-password.html" id="forgot-password-link">Esqueceu a senha?</a>
+            </div>
             <button type="submit">Login</button>
             <hr class="my-4">
-            <h2 class="fs-5 fw-bold mb-3">Or</h2>
+            <h2 class="fs-5 fw-bold mb-3">Ou</h2>
             <button class="w-100 py-2 mb-2 btn btn-outline-secondary rounded-3" type="button">
                 <svg class="bi me-1" width="16" height="16"><use xlink:href="#twitter"></use></svg>
                 Cadastre-se com o Twitter

@@ -19,7 +19,7 @@ public class Usuario {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id")
-	private Integer id;
+	private Long id;
 	
 	@Column(name="nome_completo", length = 200)
 	@NotEmpty(message = "O campo nome não pode estar em braco")
@@ -44,10 +44,10 @@ public class Usuario {
 	@NotBlank(message = "O telefone não pode estar em branco")
 	private String telefone;	
 	
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	

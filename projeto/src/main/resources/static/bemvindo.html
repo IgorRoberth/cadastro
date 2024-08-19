@@ -7,10 +7,27 @@
     <link rel="stylesheet" href="bemvindo.css">
 </head>
 <body>
-    <h1>Seja Bem Vindo(a)!</h1>
-    <p>Login realizado com sucesso</p>
     <p id="welcomeMessage"></p>
-    <button id="excluirUsuario" class="botao-excluir">Excluir Conta</button>
+    <p>Login realizado com sucesso</p>
+   
+    <h2>Adicionar Produto ao Site</h2>
+    <form id="produtoForm" enctype="multipart/form-data">
+        <label for="nomeProduto">Nome do Produto:</label>
+        <input type="text" id="nomeProduto" name="nomeProduto" required><br>
+
+        <label for="precoProduto">Preço do Produto (R$):</label>
+        <input type="number" id="precoProduto" name="precoProduto" step="0.01" required><br>
+
+        <label for="descricaoProduto">Descrição do Produto:</label>
+        <input type="text" id="descricaoProduto" name="descricaoProduto" required><br>
+
+        <label for="imagemProduto">Imagem do Produto:</label>
+        <input type="file" id="imagemProduto" name="imagemProduto"><br>
+
+        <button type="submit">Adicionar Produto</button>
+    </form>
+
     <script src="bemvindo.js"></script>
 </body>
 </html>
+

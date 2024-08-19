@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -58,6 +56,11 @@ public class UsuarioController {
 			return ResponseEntity.badRequest().body(mensagemErro);
 		}
 
+		 String mensagemErro = UsuarioService.validarSenha(usuarioDTO.getSenha());
+		    if (mensagemErro != null) {
+		        return ResponseEntity.badRequest().body("{\"error\":\"" + mensagemErro + "\"}");
+		    }
+
 		ResponseEntity<?> campoInvalidoResponse = usuarioService.validarCampo(usuarioDTO);
 		if (campoInvalidoResponse != null) {
 			return campoInvalidoResponse;
@@ -101,7 +104,7 @@ public class UsuarioController {
 
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<?> editarUsuario(@PathVariable Integer id, @RequestBody UsuarioDTO usuarioDTO) {
+	public ResponseEntity<?> editarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) {
 		Optional<Usuario> usuarioOptional = repository.findById(id);
 		if (!usuarioOptional.isPresent()) {
 			return ResponseEntity.notFound().build();

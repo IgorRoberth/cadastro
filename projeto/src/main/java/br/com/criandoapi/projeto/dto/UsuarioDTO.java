@@ -6,7 +6,7 @@ import br.com.criandoapi.projeto.model.Usuario;
 
 public class UsuarioDTO {
 
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "O campo nome não pode estar em branco")
     private String nome;
@@ -63,12 +63,12 @@ public class UsuarioDTO {
         this.telefone = telefone;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setId(Long long1) {
+        this.id = long1;
     }
     
     public Usuario toUsuario() {

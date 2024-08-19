@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produtos</title>
+<link rel="stylesheet" href="produtos.css">
+</head>
+<body>
+	<h1>Produtos Cadastrados</h1>
+	<div id="productList" class="product-list">
+		<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productList = document.getElementById('productList');
+
+            // Faz uma requisição para o endpoint da API
+            fetch('http://localhost:8002/produtos')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data);
+                    
+                    // Função para exibir produtos na página
+                    function displayProduct(product) {
+                        const productItem = document.createElement('div');
+                        productItem.classList.add('product-item');
+                        productItem.innerHTML = `
+                            <img src="${product.imagem}" alt="Imagem do produto">
+                            <h3>${product.nome}</h3>
+                            <p>Preço: R$ ${product.preco.toFixed(2)}</p>
+                            <p>${product.descricao}</p>
+                        `;
+                        productList.appendChild(productItem);
+                    }
+
+                    // Exibe todos os produtos recebidos
+                    data.forEach(displayProduct);
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+          });
+    </script>
+</body>
+</html>
+
+
