@@ -5,14 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import br.com.criandoapi.projeto.model.Produtos;
 import br.com.criandoapi.projeto.repositories.ProdutoRepository;
 import jakarta.transaction.Transactional;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -46,9 +44,9 @@ public class ProdutoController {
             }
 
             Produtos produtoSalvo = produtoRepository.save(produto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao processar a imagem: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("success", true, "produto", produtoSalvo));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "message", "Erro ao adicionar produto: " + e.getMessage()));
         }
     }
 

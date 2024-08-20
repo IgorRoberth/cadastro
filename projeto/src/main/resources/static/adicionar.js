@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para recuperar produtos do back-end
     function fetchProducts() {
-        fetch('http://localhost:8002/usuarios/produtos') // Ajuste a URL conforme necessário
+        fetch('http://localhost:8002/produtos') // Ajuste a URL conforme necessário
             .then(response => response.json())
             .then(products => {
                 products.forEach(displayProduct);

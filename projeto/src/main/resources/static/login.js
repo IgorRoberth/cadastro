@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 
 			if (response.ok) {
-				window.location.href = '/bemvindo.html?nome=' + username;
+				window.location.href = '/cadastrarprod.html?nome=' + username;
 			} else {
 				const responseData = await response.json();
 				const errorMessage = responseData.erro || 'Erro desconhecido';

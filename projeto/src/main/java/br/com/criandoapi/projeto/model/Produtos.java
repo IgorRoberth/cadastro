@@ -25,7 +25,7 @@ public class Produtos {
     @Column(name = "descricao")
     private String descricao;
 
-    @Column(name = "imagem_path")  // Mudado para imagem_path para armazenar o caminho
+    @Column(name = "imagem_path") 
     private byte[] imagemPath;
 
     // Getters e setters

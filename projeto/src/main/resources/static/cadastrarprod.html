@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Realizado com Sucesso</title>
+    <link rel="stylesheet" href="bemvindo.css">
+</head>
+<body>
+    <body>
+    <!-- Menu de navegação -->
+    <nav>
+        <ul>
+            <li><a href="produtos.html" class="menu-button">Produtos</a></li>
+        </ul>
+    </nav>
+
+    <p id="welcomeMessage"></p>
+    <p>Login realizado com sucesso</p>
+   
+    <h2>Adicionar Produto ao Site</h2>
+    <form id="produtoForm" enctype="multipart/form-data">
+    <label for="nomeProduto">Nome do Produto:</label>
+    <input type="text" id="nomeProduto" name="nomeProduto" required><br>
+
+    <label for="precoProduto">Preço do Produto (R$):</label>
+    <input type="number" id="precoProduto" name="precoProduto" step="0.01" required><br>
+
+    <label for="descricaoProduto">Descrição do Produto:</label>
+    <input type="text" id="descricaoProduto" name="descricaoProduto" required><br>
+
+    <label for="imagemProduto">Imagem do Produto:</label>
+    <input type="file" id="imagemProduto" name="imagemProduto"><br>
+
+    <button type="submit">Adicionar Produto</button>
+</form>
+    <script src="cadastrarprod.js"></script>
+</body>
+</html>

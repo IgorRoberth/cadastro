@@ -1,14 +1,14 @@
-.botao-excluir {
-    background-color: #007bff;
+.menu-button {
+    background-color: #28a745;
     color: #fff;
-    border: none;
     padding: 10px 20px;
-    border-radius: 5px;
+    text-decoration: none;
+    border-radius: 10px;
+    border: none;
     cursor: pointer;
-}
-
-.botao-excluir:hover {
-    background-color: #0056b3;
+    transition: background-color 0.3s ease, transform 0.2s;
+    display: inline-block;
+    font-weight: bold;
 }
 
 form#produtoForm {
@@ -26,13 +26,19 @@ form#produtoForm label {
     font-weight: bold;
 }
 
+.product-item img {
+    max-width: 100%; /* Ajusta a largura da imagem para não ultrapassar o contêiner */
+    height: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove o espaço em branco abaixo da imagem */
+}
+
 form#produtoForm input[type="text"],
 form#produtoForm input[type="number"],
 form#produtoForm input[type="url"] {
-    width: calc(100% - 22px);
+    width: calc(100% - 30px);
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    border: 4px solid #ccc;
     border-radius: 4px;
 }
 
@@ -41,62 +47,12 @@ form#produtoForm button[type="submit"] {
     color: #fff;
     border: none;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 15px;
 }
 
 form#produtoForm button[type="submit"]:hover {
     background-color: #218838;
-}
-
-/* Estilo para o carrinho de compras */
-#carrinho {
-    margin-top: 20px;
-}
-
-#carrinho div {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-}
-
-#carrinho img {
-    margin-right: 15px;
-    border-radius: 5px;
-}
-
-#carrinho h3 {
-    margin: 0;
-    font-size: 18px;
-    color: #333;
-}
-
-#carrinho p {
-    margin: 5px 0;
-    color: #666;
-}
-
-#carrinho span {
-    font-weight: bold;
-    color: #000;
-}
-
-#carrinho button {
-    margin-left: auto;
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#carrinho button:hover {
-    background-color: #c82333;
 }
