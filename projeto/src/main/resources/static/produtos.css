@@ -1,6 +1,8 @@
+/* Estilização para a lista de produtos */
 .product-list {
     display: flex;
     flex-wrap: wrap;
+    margin-top: 60px; /* Adiciona um espaço superior para que os produtos não fiquem escondidos atrás do botão */
 }
 
 .product-item {
@@ -13,7 +15,76 @@
     text-align: center;
 }
 
+/* Faz o botão de carrinho ficar fixo no topo da tela */
+#cartButton {
+    position: fixed; /* Fixa o botão na tela */
+    top: 10px; /* Distância do topo da tela */
+    right: 10px; /* Distância da borda direita da tela */
+    z-index: 1000; /* Garante que o botão fique sobre outros elementos */
+    padding: 10px 20px;
+    font-size: 16px;
+    color: fr;
+    background-color: white; /* Azul */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+#cartButton img {
+    width: 50px; /* ou qualquer tamanho que você desejar */
+    height: auto;
+}
+
+/* Estilização do botão quando o mouse passa sobre ele */
+#cartButton:hover {
+    background-color: #0056b3; /* Azul escuro */
+}
+
 .product-item img {
     max-width: 100%;
     height: auto;
+}
+
+/* Estilização para botões */
+.button-add-to-cart,
+.button-remove-from-cart,
+.button-cart {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+/* Cor e estilo para o botão de adicionar ao carrinho */
+.button-add-to-cart {
+    background-color: #28a745; /* Verde */
+}
+
+.button-add-to-cart:hover {
+    background-color: #218838;
+}
+
+/* Cor e estilo para o botão de remover do carrinho */
+.button-remove-from-cart {
+    background-color: #dc3545; /* Vermelho */
+}
+
+.button-remove-from-cart:hover {
+    background-color: #c82333;
+}
+
+/* Cor e estilo para o botão de carrinho */
+.button-cart {
+    background-color: #007bff; /* Azul */
+}
+
+.button-cart:hover {
+    background-color: #0056b3;
 }

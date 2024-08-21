@@ -7,44 +7,84 @@
 <link rel="stylesheet" href="produtos.css">
 </head>
 <body>
+
+	<button id="cartButton" onclick="window.location.href='carrinho.html';">
+		<img src="imagem/carelement.jpg" alt="Carrinho">
+	</button>
+	<i class="fas fa-shopping-cart"></i>
 	<h1>Produtos Cadastrados</h1>
-	<div id="productList" class="product-list">
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-		    const productList = document.getElementById('productList');
+	<div id="productList" class="product-list"></div>
+	<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productList = document.getElementById('productList');
+            const cartButton = document.getElementById('cartButton');
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-		    const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-		    // Faz uma requisição para o endpoint da API
-		    fetch('http://localhost:8002/produtos')
-		        .then(response => {
-		            if (!response.ok) {
-		                throw new Error('Network response was not ok');
-		            }
-		            return response.json();
-		        })
-		        .then(data => {
-		            console.log('Data received:', data);
-		            
-		            // Função para exibir produtos na página
-		            function displayProduct(product) {
-		                const productItem = document.createElement('div');
-		                productItem.classList.add('product-item');
-		                productItem.innerHTML = `
-		                    <img src="data:image/jpeg;base64,${product.imagemPath}" alt="Imagem do produto">
-		                    <h3>${product.nome}</h3>
-		                    <p>Preço: R$ ${product.preco.toFixed(2)}</p>
-		                    <p>${product.descricao}</p>
-		                `;
-		                productList.appendChild(productItem);
-		            }
+            // Função para exibir produtos na página
+            function displayProduct(product) {
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item');
+                productItem.innerHTML = `
+                    <img src="data:image/jpeg;base64,${product.imagemPath}" alt="Imagem do produto">
+                    <h3>${product.nome}</h3>
+                    <p>Preço: R$ ${product.preco.toFixed(2)}</p>
+                    <p>${product.descricao}</p>
+                    <button class="button-add-to-cart">Adicionar ao Carrinho</button>
+                    <button class="button-remove-from-cart">Remover do Carrinho</button>
+                `;
+                productList.appendChild(productItem);
 
-		            // Exibe todos os produtos recebidos
-		            data.forEach(displayProduct);
-		        })
-		        .catch(error => {
-		            console.error('There was a problem with the fetch operation:', error);
-		        });
-		  });
+                // Evento para adicionar ao carrinho
+                const addToCartButton = productItem.querySelector('.button-add-to-cart');
+                addToCartButton.addEventListener('click', function() {
+                    addToCart(product);
+                });
+
+                // Evento para remover do carrinho
+                const removeFromCartButton = productItem.querySelector('.button-remove-from-cart');
+                removeFromCartButton.addEventListener('click', function() {
+                    removeFromCart(product.id);
+                });
+            }
+
+            // Exibe todos os produtos recebidos
+            fetch('http://localhost:8002/produtos')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(displayProduct);
+                })
+                .catch(error => console.error('There was a problem with the fetch operation:', error));
+
+            // Função para adicionar um produto ao carrinho
+            function addToCart(product) {
+                cart = JSON.parse(localStorage.getItem('cart')) || []; // Atualiza o carrinho
+                if (!cart.some(item => item.id === product.id)) {
+                    cart.push(product);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    alert(`${product.nome} foi adicionado ao carrinho.`);
+                } else {
+                    alert(`${product.nome} já está no carrinho.`);
+                }
+            }
+
+            // Função para remover um produto do carrinho
+            function removeFromCart(productId) {
+                cart = JSON.parse(localStorage.getItem('cart')) || []; // Atualiza o carrinho
+                const updatedCart = cart.filter(item => item.id !== productId);
+                if (updatedCart.length < cart.length) {
+                    localStorage.setItem('cart', JSON.stringify(updatedCart));
+                    cart = updatedCart; // Atualiza a variável `cart`
+                    alert('Produto removido do carrinho.');
+                } else {
+                    alert('Produto não encontrado no carrinho.');
+                }
+            }
+
+            // Evento para redirecionar para a página do carrinho
+            cartButton.addEventListener('click', function() {
+                window.location.href = 'carrinho.html';
+            });
+        });
     </script>
 </body>
 </html>

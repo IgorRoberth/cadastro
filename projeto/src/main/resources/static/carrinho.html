@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Carrinho de Compras</title>
+	<link rel="stylesheet" href="carrinho.css">
+</head>
+<body>
+	<h1>Seu Carrinho</h1>
+	<div id="cartList" class="cart-list"></div>
+	<div class="cart-summary">
+		<h2 class="cart-total">
+			Total: R$ <span id="totalAmount">0.00</span>
+		</h2>
+		<button id="checkoutButton">Finalizar Compra</button>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const cartList = document.getElementById('cartList');
+			const totalAmountElement = document.getElementById('totalAmount');
+			let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+			// Função para exibir produtos no carrinho e calcular o total
+			function displayCartItem(product) {
+				const cartItem = document.createElement('div');
+				cartItem.classList.add('cart-item');
+				cartItem.innerHTML = `
+					<img src="data:image/jpeg;base64,${product.imagemPath}" alt="Imagem do produto">
+					<h3>${product.nome}</h3>
+					<p>Preço: R$ ${product.preco.toFixed(2)}</p>
+					<p>${product.descricao}</p>
+				`;
+				cartList.appendChild(cartItem);
+			}
+
+			// Função para calcular o total
+			function calculateTotal() {
+				const total = cart.reduce((sum, product) => sum + product.preco, 0);
+				totalAmountElement.textContent = total.toFixed(2);
+			}
+
+			// Exibe todos os produtos no carrinho e calcula o total
+			if (cart.length > 0) {
+				cart.forEach(displayCartItem);
+				calculateTotal();
+			} else {
+				cartList.innerHTML = '<p>O carrinho está vazio.</p>';
+			}
+
+			// Evento para finalizar a compra
+			const checkoutButton = document.getElementById('checkoutButton');
+			checkoutButton.addEventListener('click', function() {
+				if (cart.length > 0) {
+					alert(`Compra finalizada com sucesso! Valor total: R$ ${totalAmountElement.textContent}`);
+					localStorage.removeItem('cart'); // Limpa o carrinho após a compra
+					cartList.innerHTML = '<p>O carrinho está vazio.</p>';
+					totalAmountElement.textContent = '0.00';
+					cart = []; // Atualiza o array `cart`
+				} else {
+					alert('Seu carrinho está vazio!');
+				}
+			});
+		});
+	</script>
+</body>
+</html>

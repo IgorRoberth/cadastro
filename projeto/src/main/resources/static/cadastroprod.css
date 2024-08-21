@@ -1,5 +1,5 @@
 .menu-button {
-    background-color: #28a745;
+    background-color: #4c3dbb;
     color: #fff;
     padding: 10px 20px;
     text-decoration: none;
@@ -40,10 +40,11 @@ form#produtoForm input[type="url"] {
     margin-bottom: 15px;
     border: 4px solid #ccc;
     border-radius: 4px;
+    
 }
 
 form#produtoForm button[type="submit"] {
-    background-color: #28a745;
+    background-color: #4c3dbb;
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -54,5 +55,5 @@ form#produtoForm button[type="submit"] {
 }
 
 form#produtoForm button[type="submit"]:hover {
-    background-color: #218838;
+    background-color: #343a40;
 }
