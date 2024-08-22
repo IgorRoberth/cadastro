@@ -1,90 +1,114 @@
 /* Estilização para a lista de produtos */
 .product-list {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 60px; /* Adiciona um espaço superior para que os produtos não fiquem escondidos atrás do botão */
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 60px;
+	/* Adiciona um espaço superior para que os produtos não fiquem escondidos atrás do botão */
 }
 
 .product-item {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 10px;
-    padding: 10px;
-    width: calc(25% - 20px);
-    box-sizing: border-box;
-    text-align: center;
-}
-
-/* Faz o botão de carrinho ficar fixo no topo da tela */
-#cartButton {
-    position: fixed; /* Fixa o botão na tela */
-    top: 10px; /* Distância do topo da tela */
-    right: 10px; /* Distância da borda direita da tela */
-    z-index: 1000; /* Garante que o botão fique sobre outros elementos */
-    padding: 10px 20px;
-    font-size: 16px;
-    color: fr;
-    background-color: white; /* Azul */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    padding: 0;
-    cursor: pointer;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	margin: 10px;
+	padding: 10px;
+	width: calc(25% - 20px);
+	box-sizing: border-box;
+	text-align: center;
 }
 
 #cartButton img {
-    width: 50px; /* ou qualquer tamanho que você desejar */
-    height: auto;
+	width: 40px; /* ou qualquer tamanho que você desejar */
+	height: auto;
 }
 
 /* Estilização do botão quando o mouse passa sobre ele */
 #cartButton:hover {
-    background-color: #0056b3; /* Azul escuro */
+	background-color: #0056b3; /* Azul escuro */
 }
 
 .product-item img {
-    max-width: 100%;
-    height: auto;
+	max-width: 100%;
+	height: auto;
 }
 
 /* Estilização para botões */
-.button-add-to-cart,
-.button-remove-from-cart,
-.button-cart {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 5px;
+.button-add-to-cart, .button-remove-from-cart, .button-cart {
+	padding: 10px 20px;
+	font-size: 16px;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	margin: 5px;
 }
 
 /* Cor e estilo para o botão de adicionar ao carrinho */
 .button-add-to-cart {
-    background-color: #286ab0; /*azul*/
+	background-color: #286ab0; /*azul*/
 }
 
 .button-add-to-cart:hover {
-    background-color: #218838;
+	background-color: #1e4a7d;
 }
 
 /* Cor e estilo para o botão de remover do carrinho */
 .button-remove-from-cart {
-    background-color: #dc3545; /* Vermelho */
+	background-color: #dc3545; /* Vermelho */
 }
 
 .button-remove-from-cart:hover {
-    background-color: #c82333;
+	background-color: #c82333;
 }
 
 /* Cor e estilo para o botão de carrinho */
 .button-cart {
-    background-color: #007bff; /* Azul */
+	background-color: #007bff; /* Azul */
 }
 
 .button-cart:hover {
-    background-color: #0056b3;
+	background-color: #0056b3;
+}
+
+#cartButton {
+	position: fixed;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+/* Estiliza o contador */
+.cart-count {
+	position: absolute;
+	top: 10px; /* Ajuste a posição vertical conforme necessário */
+	left: -10px; /* Ajuste a posição horizontal conforme necessário */
+	background-color: #ff0000; /* Cor de fundo do círculo */
+	color: #ffffff; /* Cor do texto */
+	border-radius: 50%; /* Torna o fundo circular */
+	width: 20px; /* Largura do círculo */
+	height: 20px; /* Altura do círculo */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px; /* Tamanho da fonte */
+	font-weight: bold; /* Negrito para maior destaque */
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); /* Adiciona uma sombra sutil */
+}
+
+/* Faz o botão de carrinho ficar fixo no topo da tela */
+#cartButton {
+	position: fixed; /* Fixa o botão na tela */
+	top: 10px; /* Distância do topo da tela */
+	right: 10px; /* Distância da borda direita da tela */
+	z-index: 1000; /* Garante que o botão fique sobre outros elementos */
+	padding: 10px 20px;
+	font-size: 16px;
+	color: fr;
+	background-color: white; /* Azul */
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	border: none;
+	background: none;
+	padding: 0;
+	cursor: pointer;
 }

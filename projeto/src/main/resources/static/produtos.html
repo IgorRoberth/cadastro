@@ -8,17 +8,23 @@
 </head>
 <body>
 
-	<button id="cartButton" onclick="window.location.href='carrinho.html';">
-		<img src="imagem/carelement.jpg" alt="Carrinho">
-	</button>
-	<i class="fas fa-shopping-cart"></i>
-	<h1>Produtos Cadastrados</h1>
-	<div id="productList" class="product-list"></div>
-	<script>
+    <button id="cartButton" onclick="window.location.href='carrinho.html';">
+        <img src="imagem/carelement.jpg" alt="Carrinho">
+        <span id="cartCount" class="cart-count">0</span>
+    </button>
+    <i class="fas fa-shopping-cart"></i>
+    <h1>Produtos Cadastrados</h1>
+    <div id="productList" class="product-list"></div>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const productList = document.getElementById('productList');
             const cartButton = document.getElementById('cartButton');
+            const cartCount = document.getElementById('cartCount');
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            function updateCartCount() {
+                cartCount.textContent = cart.length;
+            }
 
             // Função para exibir produtos na página
             function displayProduct(product) {
@@ -61,6 +67,7 @@
                 if (!cart.some(item => item.id === product.id)) {
                     cart.push(product);
                     localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
                     alert(`${product.nome} foi adicionado ao carrinho.`);
                 } else {
                     alert(`${product.nome} já está no carrinho.`);
@@ -74,11 +81,15 @@
                 if (updatedCart.length < cart.length) {
                     localStorage.setItem('cart', JSON.stringify(updatedCart));
                     cart = updatedCart; // Atualiza a variável `cart`
+                    updateCartCount();
                     alert('Produto removido do carrinho.');
                 } else {
                     alert('Produto não encontrado no carrinho.');
                 }
             }
+
+            // Atualiza o contador quando a página carrega
+            updateCartCount();
 
             // Evento para redirecionar para a página do carrinho
             cartButton.addEventListener('click', function() {
